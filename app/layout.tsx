@@ -3,6 +3,9 @@ import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import NavigationBar from "@/components/navigation/navigation-bar";
+import { QueryProvider } from "@/components/providers/query-provider";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "BudgetBuddy",
@@ -29,8 +32,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <NavigationBar />
-          <main className="min-h-screen py-20 px-5">{children}</main>
+          <QueryProvider>
+            <NavigationBar />
+            <main className="min-h-screen py-20 px-5">{children}</main>
+            <ReactQueryDevtools initialIsOpen={false} />
+            <Toaster />
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

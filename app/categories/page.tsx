@@ -1,3 +1,5 @@
+import CreateCategoryDialog from "@/components/forms/create-category-dialog";
+import CategoriesContent from "@/components/main-content/categories-content";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -9,7 +11,11 @@ const CategoriesPage = async () => {
     redirect("/auth/login");
   }
 
-  return <div className="container mx-auto">CategoriesPage</div>;
+  return (
+    <div className="container mx-auto">
+      <CreateCategoryDialog />
+      <CategoriesContent />
+    </div>
+  );
 };
-
 export default CategoriesPage;
