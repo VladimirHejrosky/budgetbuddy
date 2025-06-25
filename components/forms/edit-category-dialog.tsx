@@ -1,11 +1,14 @@
 "use client";
 
-import { createCategory } from "@/lib/db/category";
-import { CategoryFormData, categorySchema } from "@/lib/validations/category";
+import { colorOptions } from "@/lib/data/colors";
+import { editCategory } from "@/lib/db/category";
+import {
+  EditCategoryFormData,
+  editCategorySchema,
+} from "@/lib/validations/category";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import {
@@ -14,7 +17,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "../ui/dialog";
 import {
   Form,
@@ -22,51 +24,65 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
+  FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import { colorOptions } from "@/lib/data/colors";
+import { on } from "events";
 
-const CreateCategoryDialog = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const queryClient = useQueryClient();
+interface Props {
+  data: {
+    id: string;
+    name: string;
+    color: string;
+  } | null;
+  onClose: () => void;
+}
 
-  const form = useForm<CategoryFormData>({
-    resolver: zodResolver(categorySchema),
+const EditCategoryDialog = ({ data, onClose }: Props) => {
+  if (!data) return null;
+  const { id, name, color } = data;
+
+  const form = useForm<EditCategoryFormData>({
+    resolver: zodResolver(editCategorySchema),
     defaultValues: {
-      name: "",
-      type: "expense",
-      color: colorOptions[0],
+      id: id,
+      name: name,
+      color: color,
     },
   });
 
   const { reset } = form;
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (data) {
+      reset({
+        id: id,
+        name: name,
+        color: color,
+      });
+    }
+  }, [data, reset]);
 
   const mutation = useMutation({
-    mutationFn: async (data: CategoryFormData) => await createCategory(data),
-    onMutate: async (newCategory) => {
+    mutationFn: async (data: EditCategoryFormData) => await editCategory(data),
+    onMutate: async (updatedCategory) => {
       await queryClient.cancelQueries({ queryKey: ["category"] });
-
-      const previousCategories = queryClient.getQueryData<CategoryFormData[]>([
-        "category",
-      ]);
-
-      queryClient.setQueryData<CategoryFormData[]>(["category"], (old = []) => [
-        ...old,
-        newCategory,
-      ]);
-
+      const previousCategories = queryClient.getQueryData<
+        EditCategoryFormData[]
+      >(["category"]);
+      queryClient.setQueryData<EditCategoryFormData[]>(
+        ["category"],
+        (old = []) => {
+          return old.map((category) =>
+            category.id === id ? { ...category, ...updatedCategory } : category
+          );
+        }
+      );
       return { previousCategories };
     },
-    onError: (err, newCategory, context) => {
+    onError: (err, updatedCategory, context) => {
       if (context?.previousCategories) {
         queryClient.setQueryData(["category"], context.previousCategories);
       }
@@ -76,55 +92,35 @@ const CreateCategoryDialog = () => {
     },
   });
 
-  const onSubmit = async (data: CategoryFormData) => {
+  const onSubmit = async (data: EditCategoryFormData) => {
+    const current = form.getValues();
+    const defaults = form.formState.defaultValues;
+
+    const hasChanged =
+      current.name !== defaults?.name || current.color !== defaults?.color;
+
+    if (!hasChanged) {
+      onClose(); 
+      return;
+    }
+    onClose();
     await mutation.mutateAsync(data);
-    setIsOpen(false);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      setIsOpen(open);
-      if (!open) reset();
-    }}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Přidat kategorii
-        </Button>
-      </DialogTrigger>
+    <Dialog
+      open={true}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Nová kategorie</DialogTitle>
+          <DialogTitle>Upravit kategorii</DialogTitle>
           <DialogDescription />
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Typ</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Vyberte typ" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="income">Příjem</SelectItem>
-                      <SelectItem value="expense">Výdaj</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <FormField
               control={form.control}
               name="name"
@@ -185,13 +181,11 @@ const CreateCategoryDialog = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => (setIsOpen(false), reset())}
+                onClick={() => onClose?.()}
               >
                 Zrušit
               </Button>
-              <Button type="submit">
-                Vytvořit
-              </Button>
+              <Button type="submit">Uložit</Button>
             </div>
           </form>
         </Form>
@@ -200,4 +194,4 @@ const CreateCategoryDialog = () => {
   );
 };
 
-export default CreateCategoryDialog;
+export default EditCategoryDialog;

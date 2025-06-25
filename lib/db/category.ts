@@ -1,6 +1,6 @@
 'use server';
 
-import { categorySchema } from '@/lib/validations/category';
+import { categorySchema, editCategorySchema } from '@/lib/validations/category';
 import { createClient } from '../supabase/server';
 
 export async function createCategory(unsafeData: { name: string, type: string, color: string }) {
@@ -31,4 +31,21 @@ export async function getCategories() {
 
   if (fetchError) throw new Error(fetchError.message);
   return categories;
+}
+
+export async function editCategory(unsafeData: { id:string, name: string, color: string }) {
+  const { data, success } = editCategorySchema.safeParse(unsafeData);
+  if (!success) throw new Error("Invalid data");
+
+  const supabase = await createClient();
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) throw new Error("Unauthorized");
+
+  const { error: updateError } = await supabase
+    .from('category')
+    .update(data)
+    .eq('id', data.id)
+    .eq('userId', user.id);
+
+  if (updateError) throw new Error(updateError.message);
 }

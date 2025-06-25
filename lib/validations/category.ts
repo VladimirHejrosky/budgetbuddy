@@ -9,3 +9,11 @@ export const categorySchema = z.object({
 });
 
 export type CategoryFormData = z.infer<typeof categorySchema>;
+
+export const editCategorySchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1, 'Název je povinný').max(50, "Příliš dlouhý název"),
+  color: z.string().regex(/^#([0-9A-Fa-f]{3}){1,2}$/, 'Neplatná barva'),
+})
+
+export type EditCategoryFormData = z.infer<typeof editCategorySchema>;
