@@ -6,9 +6,9 @@ import {
   editCategorySchema,
 } from "@/lib/validations/category";
 import { createClient } from "../supabase/server";
-import { set } from "zod";
 
 export async function createCategory(unsafeData: {
+  id: string;
   name: string;
   type: string;
   color: string;
@@ -23,9 +23,10 @@ export async function createCategory(unsafeData: {
   } = await supabase.auth.getUser();
   if (error || !user) throw new Error("Unauthorized");
 
+  const {id, ...creatingData} = data
   const { error: insertError } = await supabase
     .from("category")
-    .insert([{ ...data, userId: user.id }]);
+    .insert([{ ...creatingData, userId: user.id }]);
 
   if (insertError) throw new Error(insertError.message);
 }

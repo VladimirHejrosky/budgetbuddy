@@ -20,10 +20,6 @@ const CategoriesContent = () => {
     null
   );
 
-  if (isLoading) {
-    return <div>Načítání kategorií...</div>;
-  }
-
   return (
     <div className="grid gap-6 md:grid-cols-2">
       <Card>

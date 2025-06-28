@@ -22,7 +22,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
+  FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -43,6 +43,7 @@ const CreateCategoryDialog = () => {
   const form = useForm<CategoryFormData>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
+      id: `temp-${crypto.randomUUID()}`,
       name: "",
       type: "expense",
       color: colorOptions[0],
@@ -50,6 +51,15 @@ const CreateCategoryDialog = () => {
   });
 
   const { reset } = form;
+
+  const resetDefault = () => {
+    reset({
+      id: `temp-${crypto.randomUUID()}`,
+      name: "",
+      type: "expense",
+      color: colorOptions[0],
+    });
+  }
 
   const mutation = useMutation({
     mutationFn: async (data: CategoryFormData) => await createCategory(data),
@@ -75,19 +85,24 @@ const CreateCategoryDialog = () => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["category"] });
+      resetDefault();
     },
   });
 
   const onSubmit = async (data: CategoryFormData) => {
-    await mutation.mutateAsync(data);
     setIsOpen(false);
+    await mutation.mutateAsync(data);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      setIsOpen(open);
-      if (!open) reset();
-    }}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        if (!open)
+          resetDefault()
+      }}
+    >
       <DialogTrigger asChild>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
@@ -101,13 +116,14 @@ const CreateCategoryDialog = () => {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <input type="hidden" {...form.register("id")} />
 
             <FormField
               control={form.control}
               name="type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Typ</FormLabel>
+                  a<FormLabel>Typ</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -187,13 +203,14 @@ const CreateCategoryDialog = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => (setIsOpen(false), reset())}
+                onClick={() => (
+                  setIsOpen(false),
+                  resetDefault()
+                )}
               >
                 Zrušit
               </Button>
-              <Button type="submit">
-                Vytvořit
-              </Button>
+              <Button type="submit">Vytvořit</Button>
             </div>
           </form>
         </Form>
