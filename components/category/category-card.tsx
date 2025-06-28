@@ -10,8 +10,9 @@ interface Props {
     color: string;
   };
   onEdit: () => void;
+  onDelete: () => void;
 }
-const CategoryCard = ({ data, onEdit }: Props) => {
+const CategoryCard = ({ data, onEdit, onDelete }: Props) => {
   return (
     <>
       <Card className="flex justify-between flex.row items-center gap-3 p-2">
@@ -26,7 +27,7 @@ const CategoryCard = ({ data, onEdit }: Props) => {
           <Button variant="ghost" size="icon" onClick={onEdit}>
             <Edit />
           </Button>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" onClick={onDelete}>
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>

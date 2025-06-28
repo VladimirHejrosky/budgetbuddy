@@ -1,4 +1,4 @@
-import CreateCategoryDialog from "@/components/forms/create-category-dialog";
+import CreateCategoryDialog from "@/components/category/create-category-dialog";
 import CategoriesContent from "@/components/category/categories-content";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";

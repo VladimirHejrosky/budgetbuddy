@@ -17,3 +17,9 @@ export const editCategorySchema = z.object({
 })
 
 export type EditCategoryFormData = z.infer<typeof editCategorySchema>;
+
+export const deleteCategorySchema = z.object({
+  id: z.string().min(1, 'ID je povinné'),
+});
+
+export type DeleteCategoryFormData = z.infer<typeof deleteCategorySchema>;
