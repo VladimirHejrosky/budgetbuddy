@@ -115,7 +115,7 @@ const CreateCategoryDialog = () => {
           <DialogDescription />
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <input type="hidden" {...form.register("id")} />
 
             <FormField
@@ -123,7 +123,7 @@ const CreateCategoryDialog = () => {
               name="type"
               render={({ field }) => (
                 <FormItem>
-                  a<FormLabel>Typ</FormLabel>
+                  <FormLabel>Typ</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
