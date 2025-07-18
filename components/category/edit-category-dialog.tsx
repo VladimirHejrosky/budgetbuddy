@@ -115,7 +115,7 @@ const EditCategoryDialog = ({ data, onClose }: Props) => {
         if (!open) onClose();
       }}
     >
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Upravit kategorii</DialogTitle>
           <DialogDescription />

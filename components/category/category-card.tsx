@@ -15,7 +15,7 @@ interface Props {
 const CategoryCard = ({ data, onEdit, onDelete }: Props) => {
   return (
     <>
-      <Card className="flex justify-between flex.row items-center gap-3 p-2">
+      <Card className="flex justify-between flex-row items-center gap-3 p-2">
         <div className="flex justify-start items-center gap-2">
           <div
             className="w-4 h-4 rounded-full"

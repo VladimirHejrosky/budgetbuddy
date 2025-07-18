@@ -1,6 +1,19 @@
 "use client";
 
+import { months } from "@/lib/data/months";
+import { createTransaction } from "@/lib/db/transaction";
+import { useCategory } from "@/lib/hooks/useCategory";
+import { cn } from "@/lib/utils";
+import {
+  TransactionSchema,
+  transactionSchema,
+} from "@/lib/validations/transaction";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -18,13 +31,6 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  TransactionSchema,
-  transactionSchema,
-} from "@/lib/validations/transaction";
-import { useEffect, useState } from "react";
 import { Input } from "../ui/input";
 import {
   Select,
@@ -33,78 +39,102 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { cn } from "@/lib/utils";
-import { Badge } from "../ui/badge";
 
-const TypeBadge = {
-  income: "Příjem",
-  expense: "Výdaj",
-} as const;
-
-const categories = [
-  { id: "9aa52ba3-27af-4c30-8cac-9567dbb4ab9f", name: "Food", type: "expense" },
-  {
-    id: "322a5029-1864-4ad9-81de-3474d23ce18c",
-    name: "Transport",
-    type: "expense",
-  },
-  {
-    id: "b3686bd5-d6c9-4430-a2d3-7b55025934b2",
-    name: "Salary",
-    type: "income",
-  },
-];
-
-const months = [
-  { value: 1, label: "Leden" },
-  { value: 2, label: "Únor" },
-  { value: 3, label: "Březen" },
-  { value: 4, label: "Duben" },
-  { value: 5, label: "Květen" },
-  { value: 6, label: "Červen" },
-  { value: 7, label: "Červenec" },
-  { value: 8, label: "Srpen" },
-  { value: 9, label: "Září" },
-  { value: 10, label: "Říjen" },
-  { value: 11, label: "Listopad" },
-  { value: 12, label: "Prosinec" },
-];
-
-const currentYear = new Date().getFullYear();
 const currentMonth = new Date().getMonth() + 1;
-const years = Array.from({ length: 7 }, (_, i) => currentYear - 3 + i);
+const currentYear = new Date().getFullYear();
+const years = Array.from(
+  { length: currentYear - 2025 + 1 },
+  (_, i) => 2025 + i
+);
 
-const CreateTransactionDialog = () => {
+interface Props {
+  monthOfCard: number;
+  yearOfCard: number;
+}
+
+export const CreateTransactionDialog = ({ monthOfCard, yearOfCard }: Props) => {
+  const { data: categories } = useCategory();
   const [open, setOpen] = useState(false);
   const form = useForm({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
       id: `temp-${crypto.randomUUID()}`,
       name: "",
-      amount: "",
+      amount: 0,
       categoryId: "",
       type: undefined,
-      month: new Date().getMonth() + 1,
-      year: new Date().getFullYear(),
+      month: monthOfCard,
+      year: yearOfCard,
     },
   });
 
   const { reset, handleSubmit, register, control, watch, setValue } = form;
 
+  useEffect(() => {
+    form.reset((prev) => ({
+      ...prev,
+      month: monthOfCard,
+      year: yearOfCard,
+    }));
+  }, [monthOfCard, yearOfCard]);
+
   const categoryId = watch("categoryId");
 
   useEffect(() => {
-    const selected = categories.find((c) => c.id === categoryId);
+    const selected = categories?.find((c) => c.id === categoryId);
     if (selected?.type === "income" || selected?.type === "expense") {
       setValue("type", selected.type);
     }
   }, [categoryId, setValue, categories]);
 
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: async (data: TransactionSchema) =>
+      await createTransaction(data),
+
+    onMutate: async (newTransaction) => {
+      const queryKey = [
+        "transaction",
+        newTransaction.month,
+        newTransaction.year,
+      ] as const;
+
+      await queryClient.cancelQueries({ queryKey });
+
+      const previousTransactions =
+        queryClient.getQueryData<TransactionSchema[]>(queryKey);
+
+      queryClient.setQueryData<TransactionSchema[]>(queryKey, (old = []) => [
+        ...old,
+        newTransaction,
+      ]);
+
+      return { previousTransactions, queryKey };
+    },
+
+    onError: (err, newTransaction, context) => {
+      if (context?.previousTransactions) {
+        queryClient.setQueryData(
+          context.queryKey,
+          context.previousTransactions
+        );
+      }
+      toast.error("Chyba při vytváření transakce");
+    },
+
+    onSettled: (_, __, ___, context) => {
+      if (context?.queryKey) {
+        queryClient.invalidateQueries({ queryKey: context.queryKey });
+      }
+      resetDefault();
+    },
+  });
+
   const resetDefault = () => {
     reset({
       id: `temp-${crypto.randomUUID()}`,
       name: "",
-      amount: "",
+      amount: 0,
       categoryId: "",
       month: new Date().getMonth() + 1,
       year: new Date().getFullYear(),
@@ -112,7 +142,7 @@ const CreateTransactionDialog = () => {
   };
   const onSubmit = async (data: TransactionSchema) => {
     setOpen(false);
-    console.log("Form submitted with data:", data);
+    await mutation.mutateAsync(data);
   };
 
   return (
@@ -125,10 +155,11 @@ const CreateTransactionDialog = () => {
     >
       <DialogTrigger asChild>
         <Button>
-          Přidat Transakci <Plus />
+          Přidat transakci
+          <Plus />
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Přidat Transakci</DialogTitle>
           <DialogDescription />
@@ -154,27 +185,18 @@ const CreateTransactionDialog = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {categories.map((category) => (
+                      {categories?.map((category) => (
                         <SelectItem
                           key={category.id}
                           value={category.id}
                           className="w-full"
                         >
                           <div className="flex w-full items-center gap-4 justify-between">
+                            <div
+                              className="w-4 h-4 rounded-full"
+                              style={{ backgroundColor: category.color }}
+                            />
                             <span>{category.name}</span>
-                            <Badge
-                              className={cn(
-                                category.type === "income"
-                                  ? "bg-green-100 text-green-800"
-                                  : "bg-red-100 text-red-800"
-                              )}
-                            >
-                              {
-                                TypeBadge[
-                                  category.type as keyof typeof TypeBadge
-                                ]
-                              }
-                            </Badge>
                           </div>
                         </SelectItem>
                       ))}
@@ -314,5 +336,3 @@ const CreateTransactionDialog = () => {
     </Dialog>
   );
 };
-
-export default CreateTransactionDialog;
