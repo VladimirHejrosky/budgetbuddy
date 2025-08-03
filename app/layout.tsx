@@ -10,6 +10,9 @@ import { Toaster } from "sonner";
 export const metadata: Metadata = {
   title: "BudgetBuddy",
   description: "Správa financí",
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 const geistSans = Geist({
