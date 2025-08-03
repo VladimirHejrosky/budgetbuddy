@@ -1,4 +1,5 @@
 "use client";
+
 import { deleteCategory } from "@/lib/db/category";
 import { Category } from "@/lib/types";
 import {
@@ -25,12 +26,12 @@ interface Props {
   name: string;
   onClose: () => void;
 }
+
 const DeleteCategoryDialog = ({ id, name, onClose }: Props) => {
-  if (!id || !name) return null;
   const form = useForm<DeleteCategoryFormData>({
     resolver: zodResolver(deleteCategorySchema),
     defaultValues: {
-      id: id,
+      id,
     },
   });
 
@@ -38,54 +39,47 @@ const DeleteCategoryDialog = ({ id, name, onClose }: Props) => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (id) {
-      reset({
-        id: id,
-      });
-    }
+    reset({ id });
   }, [id, reset]);
 
-  const onSubmit = async () => {
-    onClose();
-    await mutation.mutateAsync({ id });
-  };
-
   const mutation = useMutation({
-    mutationFn: async (data: DeleteCategoryFormData) =>
-      await deleteCategory(data),
+    mutationFn: async (data: DeleteCategoryFormData) => {
+      return await deleteCategory(data);
+    },
     onMutate: async (deletedCategory) => {
       await queryClient.cancelQueries({ queryKey: ["category"] });
       const previousCategories = queryClient.getQueryData(["category"]);
-      queryClient.setQueryData(["category"], (old: Category[]) => {
-        return old.filter(
-          (category: Category) => category.id !== deletedCategory.id
-        );
-      });
+      queryClient.setQueryData(["category"], (old: Category[] = []) =>
+        old.filter((category) => category.id !== deletedCategory.id)
+      );
       return { previousCategories };
     },
     onError: (err, deletedCategory, context) => {
       queryClient.setQueryData(["category"], context?.previousCategories);
-      toast.error("Chyba při mazání kategorie")
+      toast.error("Chyba při mazání kategorie");
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["category"] });
     },
   });
 
+  const onSubmit = async () => {
+    onClose();
+    await mutation.mutateAsync({ id });
+  };
+
   return (
     <Dialog
       open={true}
       onOpenChange={(open) => {
-        if (!open) {
-          onClose();
-        }
+        if (!open) onClose();
       }}
     >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
             Opravdu chceš smazat kategorii{" "}
-            <span className="text-destructive">"{name}"</span>?
+            <span className="text-destructive">&quot;{name}&quot;</span>?
           </DialogTitle>
           <DialogDescription>
             Pokud máš uložené některé transakce v této kategorii, tak pro ně

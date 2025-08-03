@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -28,7 +29,6 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { toast } from "sonner";
 
 interface Props {
   data: {
@@ -40,27 +40,25 @@ interface Props {
 }
 
 const EditCategoryDialog = ({ data, onClose }: Props) => {
-  if (!data) return null;
-  const { id, name, color } = data;
+  const queryClient = useQueryClient();
 
   const form = useForm<EditCategoryFormData>({
     resolver: zodResolver(editCategorySchema),
     defaultValues: {
-      id: id,
-      name: name,
-      color: color,
+      id: "",
+      name: "",
+      color: "#000000",
     },
   });
 
   const { reset } = form;
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (data) {
       reset({
-        id: id,
-        name: name,
-        color: color,
+        id: data.id,
+        name: data.name,
+        color: data.color,
       });
     }
   }, [data, reset]);
@@ -69,20 +67,18 @@ const EditCategoryDialog = ({ data, onClose }: Props) => {
     mutationFn: async (data: EditCategoryFormData) => await editCategory(data),
     onMutate: async (updatedCategory) => {
       await queryClient.cancelQueries({ queryKey: ["category"] });
-      const previousCategories = queryClient.getQueryData<
-        EditCategoryFormData[]
-      >(["category"]);
-      queryClient.setQueryData<EditCategoryFormData[]>(
-        ["category"],
-        (old = []) => {
-          return old.map((category) =>
-            category.id === id ? { ...category, ...updatedCategory } : category
-          );
-        }
+
+      const previousCategories = queryClient.getQueryData<EditCategoryFormData[]>(["category"]);
+
+      queryClient.setQueryData<EditCategoryFormData[]>(["category"], (old = []) =>
+        old.map((cat) =>
+          cat.id === updatedCategory.id ? { ...cat, ...updatedCategory } : cat
+        )
       );
+
       return { previousCategories };
     },
-    onError: (err, updatedCategory, context) => {
+    onError: (_, __, context) => {
       if (context?.previousCategories) {
         queryClient.setQueryData(["category"], context.previousCategories);
       }
@@ -93,33 +89,31 @@ const EditCategoryDialog = ({ data, onClose }: Props) => {
     },
   });
 
-  const onSubmit = async (data: EditCategoryFormData) => {
-    const current = form.getValues();
-    const defaults = form.formState.defaultValues;
+  const onSubmit = async (values: EditCategoryFormData) => {
+    const { name, color } = values;
+    const { name: defaultName, color: defaultColor } = form.formState.defaultValues || {};
 
-    const hasChanged =
-      current.name !== defaults?.name || current.color !== defaults?.color;
+    const hasChanged = name !== defaultName || color !== defaultColor;
 
     if (!hasChanged) {
       onClose();
       return;
     }
+
+    await mutation.mutateAsync(values);
     onClose();
-    await mutation.mutateAsync(data);
   };
 
+  if (!data) return null;
+
   return (
-    <Dialog
-      open={true}
-      onOpenChange={(open) => {
-        if (!open) onClose();
-      }}
-    >
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Upravit kategorii</DialogTitle>
           <DialogDescription />
         </DialogHeader>
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
@@ -145,17 +139,17 @@ const EditCategoryDialog = ({ data, onClose }: Props) => {
                   <FormControl>
                     <div className="space-y-2">
                       <div className="flex gap-2 flex-wrap mb-8">
-                        {colorOptions.map((color) => (
+                        {colorOptions.map((clr) => (
                           <button
-                            key={color}
+                            key={clr}
                             type="button"
                             className={`w-8 h-8 rounded-full border-2 ${
-                              field.value === color
+                              field.value === clr
                                 ? "border-foreground"
                                 : "border-transparent"
                             }`}
-                            style={{ backgroundColor: color }}
-                            onClick={() => field.onChange(color)}
+                            style={{ backgroundColor: clr }}
+                            onClick={() => field.onChange(clr)}
                           />
                         ))}
                       </div>
@@ -178,15 +172,13 @@ const EditCategoryDialog = ({ data, onClose }: Props) => {
               )}
             />
 
-            <div className="flex gap-2 justify-between">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onClose?.()}
-              >
+            <div className="flex justify-between gap-2">
+              <Button type="button" variant="outline" onClick={onClose}>
                 Zrušit
               </Button>
-              <Button type="submit">Uložit</Button>
+              <Button type="submit" disabled={mutation.isPending}>
+                Uložit
+              </Button>
             </div>
           </form>
         </Form>

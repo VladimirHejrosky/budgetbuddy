@@ -21,7 +21,7 @@ export async function createTransaction(unsafeData: TransactionSchema) {
   if (error || !user) throw new Error("Unauthorized");
 
   const { id, ...transactionData } = data;
-
+  void id
   const { error: insertError } = await supabase
     .from("transaction")
     .insert([{ ...transactionData, userId: user.id }]);

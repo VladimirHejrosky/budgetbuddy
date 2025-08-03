@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import React from 'react'
 
 const RecurringPage = async () => {
       const supabase = await createClient();

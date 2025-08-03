@@ -14,7 +14,7 @@ import DeleteCategoryDialog from "./delete-category-dialog";
 import EditCategoryDialog from "./edit-category-dialog";
 
 const CategoriesContent = () => {
-  const { data: categories, isLoading } = useCategory();
+  const { data: categories } = useCategory();
   const [editCategory, setEditCategory] = useState<Category | null>(null);
   const [deletingCategory, setDeletingCategory] = useState<Category | null>(
     null

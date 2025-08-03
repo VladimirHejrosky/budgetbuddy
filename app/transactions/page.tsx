@@ -1,8 +1,6 @@
-import { CreateTransactionDialog } from '@/components/transactions/create-transaction-dialog';
 import TransactionContent from '@/components/transactions/transaction-content';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import React from 'react'
 
 const TransactionPage = async () => {
     const supabase = await createClient();

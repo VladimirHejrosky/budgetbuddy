@@ -23,7 +23,8 @@ export async function createCategory(unsafeData: {
   } = await supabase.auth.getUser();
   if (error || !user) throw new Error("Unauthorized");
 
-  const {id, ...creatingData} = data
+  const { id, ...creatingData } = data;
+  void id;
   const { error: insertError } = await supabase
     .from("category")
     .insert([{ ...creatingData, userId: user.id }]);

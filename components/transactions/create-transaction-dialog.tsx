@@ -76,7 +76,7 @@ export const CreateTransactionDialog = ({ monthOfCard, yearOfCard }: Props) => {
       month: monthOfCard,
       year: yearOfCard,
     }));
-  }, [monthOfCard, yearOfCard]);
+  }, [monthOfCard, yearOfCard, form]);
 
   const categoryId = watch("categoryId");
 
@@ -259,7 +259,7 @@ export const CreateTransactionDialog = ({ monthOfCard, yearOfCard }: Props) => {
                   <FormItem className="flex-1">
                     <FormLabel>Měsíc</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
+                      onValueChange={(value) => field.onChange(Number(value))}
                       defaultValue={field.value.toString()}
                     >
                       <FormControl>
