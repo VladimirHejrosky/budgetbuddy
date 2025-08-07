@@ -41,7 +41,7 @@ export default function RootLayout({
         >
           <QueryProvider>
             <NavigationBar />
-            <main className="min-h-screen py-20 px-5">{children}</main>
+            <main className="min-h-screen pt-4 pb-20 px-4">{children}</main>
             <ReactQueryDevtools initialIsOpen={false} />
             <Toaster />
           </QueryProvider>

@@ -42,7 +42,8 @@ export async function getTransactions(month: number, year: number) {
     .select("*")
     .eq("userId", user.id)
     .eq("month", month)
-    .eq("year", year);
+    .eq("year", year)
+    .order("createdAt", { ascending: false });
 
   if (fetchError) throw new Error(fetchError.message);
   return transactions;

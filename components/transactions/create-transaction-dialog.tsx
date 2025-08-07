@@ -136,8 +136,8 @@ export const CreateTransactionDialog = ({ monthOfCard, yearOfCard }: Props) => {
       name: "",
       amount: 0,
       categoryId: "",
-      month: new Date().getMonth() + 1,
-      year: new Date().getFullYear(),
+      month: monthOfCard,
+      year: yearOfCard,
     });
   };
   const onSubmit = async (data: TransactionSchema) => {
@@ -155,7 +155,6 @@ export const CreateTransactionDialog = ({ monthOfCard, yearOfCard }: Props) => {
     >
       <DialogTrigger asChild>
         <Button>
-          Přidat transakci
           <Plus />
         </Button>
       </DialogTrigger>

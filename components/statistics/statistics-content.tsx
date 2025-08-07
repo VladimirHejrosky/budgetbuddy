@@ -14,10 +14,11 @@ import { useTransactionsByYear } from "@/lib/hooks/useTransactionsByYear";
 import { PieChart, TrendingDown, TrendingUp, Wallet } from "lucide-react";
 import { useState } from "react";
 import YearSelector from "../navigation/year-selector";
+import { Skeleton } from "../ui/skeleton";
 
 export default function StatisticsPage() {
   const [year, setYear] = useState(new Date().getFullYear());
-  const { data: transactions } = useTransactionsByYear(year);
+  const { data: transactions, isLoading } = useTransactionsByYear(year);
   const { data: categories } = useCategory();
 
   // Yearly calculations
@@ -85,7 +86,7 @@ export default function StatisticsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-6">
+    <>
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div>
@@ -104,10 +105,15 @@ export default function StatisticsPage() {
               </CardTitle>
               <TrendingUp className="h-4 w-4 text-green-600" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {formatNumber(yearlyIncome)} Kč
+            <CardContent className="w-full flex items-center">
+              <div className="text-2xl font-bold text-green-600 flex-1">
+                {isLoading ? (
+                  <Skeleton className="h-[32px] w-1/2 rounded-full" />
+                ) : (
+                  formatNumber(yearlyIncome)
+                )}
               </div>
+              <span className="text-sm text-muted-foreground">Kč</span>
             </CardContent>
           </Card>
 
@@ -118,10 +124,15 @@ export default function StatisticsPage() {
               </CardTitle>
               <TrendingDown className="h-4 w-4 text-red-600" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-600">
-                {formatNumber(yearlyExpenses)} Kč
+            <CardContent className="w-full flex items-center">
+              <div className="text-2xl font-bold text-green-600 flex-1">
+                {isLoading ? (
+                  <Skeleton className="h-[32px] w-1/2 rounded-full" />
+                ) : (
+                  formatNumber(yearlyExpenses)
+                )}
               </div>
+              <span className="text-sm text-muted-foreground">Kč</span>
             </CardContent>
           </Card>
 
@@ -132,14 +143,19 @@ export default function StatisticsPage() {
               </CardTitle>
               <Wallet className="h-4 w-4" />
             </CardHeader>
-            <CardContent>
+            <CardContent className="w-full flex items-center">
               <div
-                className={`text-2xl font-bold ${
+                className={`text-2xl font-bold flex-1 ${
                   yearlyBalance >= 0 ? "text-green-600" : "text-red-600"
                 }`}
               >
-                {formatNumber(yearlyBalance)} Kč
+                {isLoading ? (
+                  <Skeleton className="h-[32px] w-1/2 rounded-full" />
+                ) : (
+                  formatNumber(yearlyBalance)
+                )}
               </div>
+              <span className="text-sm text-muted-foreground">Kč</span>
             </CardContent>
           </Card>
         </div>
@@ -158,7 +174,7 @@ export default function StatisticsPage() {
                   {bestMonth.month}
                 </p>
                 <p className="text-2xl font-bold text-green-600">
-                  +{formatNumber(bestMonth.balance)} Kč
+                  {formatNumber(bestMonth.balance)} Kč
                 </p>
                 <div className="flex gap-2 text-sm text-muted-foreground">
                   <span>Příjmy: {formatNumber(bestMonth.income)} Kč</span>
@@ -313,6 +329,6 @@ export default function StatisticsPage() {
           </Card>
         </div>
       </div>
-    </div>
+    </>
   );
 }

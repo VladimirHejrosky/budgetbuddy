@@ -24,9 +24,6 @@ const TransactionContent = () => {
       <div className="flex w-full justify-between items-center mb-4">
         <div>
           <h1 className="text-3xl font-semibold">Transakce</h1>
-          <p className="text-muted-foreground">
-            Správa a sledovaní tvých transakcí
-          </p>
         </div>
         <CreateTransactionDialog monthOfCard={month} yearOfCard={year} />
       </div>

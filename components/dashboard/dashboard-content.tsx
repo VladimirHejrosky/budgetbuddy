@@ -46,11 +46,6 @@ const DashboardContent = () => {
     })
     .filter((c) => c.amount > 0);
 
-    const latestTransactions = [...(transactions ?? [])]
-  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  .slice(0, 5);
-
-
   return (
     <>
       <div className="flex w-full justify-between items-center mb-6">
@@ -194,15 +189,15 @@ const DashboardContent = () => {
       </div>
 
       <Card className="flex flex-col w-full gap-4 p-4">
-        <CardTitle>Poslední transakce tento měsíc</CardTitle>
-        {latestTransactions?.length === 0 ? (
+        <CardTitle>Transakce tento měsíc</CardTitle>
+        {transactions?.length === 0 ? (
           <div className="text-center text-muted-foreground py-4">
             Žádné transakce pro tento měsíc
           </div>
         ) : isLoading ? (
           <Skeleton className="w-full h-[30px] rounded-full" />
         ) : (
-          latestTransactions?.slice(0, 5).map((transaction) => (
+          transactions?.map((transaction) => (
             <Card
               key={transaction.id}
               className="flex justify-between items-center gap-4 p-4"

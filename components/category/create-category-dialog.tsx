@@ -105,8 +105,7 @@ const CreateCategoryDialog = () => {
     >
       <DialogTrigger asChild>
         <Button>
-          Přidat kategorii
-          <Plus className="h-4 w-4" />
+          <Plus />
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto">

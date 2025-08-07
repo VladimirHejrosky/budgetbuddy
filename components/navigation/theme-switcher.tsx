@@ -10,6 +10,9 @@ const ThemeSwitcher = () => {
   const { theme, setTheme } = useTheme();
 
   useEffect(() => {
+    if (theme === "system") {
+      setTheme("light");
+    }
     setMounted(true);
   }, []);
 
@@ -22,22 +25,13 @@ const ThemeSwitcher = () => {
   const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
 
   return (
-        <Button variant="ghost" size={"sm"} onClick={toggleTheme}>
-        {theme === "dark" ? (
-          <Moon
-            key="dark"
-            size={ICON_SIZE}
-            className={"text-muted-foreground"}
-          /> )
-          : (
-            <Sun
-              key="light"
-              size={ICON_SIZE}
-              className={"text-muted-foreground"}
-            />
-
-          )}
-        </Button>
+    <Button variant="ghost" size={"sm"} onClick={toggleTheme}>
+      {theme === "dark" ? (
+        <Moon key="dark" size={ICON_SIZE} className={"text-muted-foreground"} />
+      ) : (
+        <Sun key="light" size={ICON_SIZE} className={"text-muted-foreground"} />
+      )}
+    </Button>
   );
 };
 

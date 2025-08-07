@@ -16,9 +16,6 @@ const CategoriesPage = async () => {
       <div className="flex w-full justify-between items-center mb-4">
         <div>
           <h1 className="text-3xl font-semibold">Kategorie</h1>
-          <p className="text-muted-foreground">
-            Spravuj své kategorie příjmů a výdajů
-          </p>
         </div>
         <CreateCategoryDialog />
       </div>

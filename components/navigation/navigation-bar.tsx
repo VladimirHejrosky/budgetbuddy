@@ -51,8 +51,8 @@ const NavigationBar = () => {
     );
 
   return (
-    <nav className="w-full flex justify-between border-b border-b-foreground/10 py-3 px-4 absolute top-0">
-      <Link className="font-semibold text-2xl" href={"/"}>
+    <nav className="w-full flex justify-between items-center border-b border-b-foreground/10 py-3 px-4 sticky top-0 bg-background bg-">
+      <Link className="font-bold text-2xl" href={"/"}>
         BudgetBuddy
       </Link>
       <div className="hidden gap-4 items-center md:flex">
