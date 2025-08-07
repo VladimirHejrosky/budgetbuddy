@@ -159,7 +159,7 @@ export const CreateTransactionDialog = ({ monthOfCard, yearOfCard }: Props) => {
           <Plus />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] overflow-y-auto will-change-auto">
         <DialogHeader>
           <DialogTitle>Přidat Transakci</DialogTitle>
           <DialogDescription />

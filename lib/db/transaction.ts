@@ -48,6 +48,28 @@ export async function getTransactions(month: number, year: number) {
   return transactions;
 }
 
+export async function getTransactionsByYear(year: number) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) throw new Error("Unauthorized");
+
+  const { data: transactions, error: fetchError } = await supabase
+    .from("transaction")
+    .select("*")
+    .eq("userId", user.id)
+    .eq("year", year);
+
+  if (fetchError) throw new Error(fetchError.message);
+
+  return transactions;
+}
+
+
 export async function editTransaction(unsafeData: EditTransactionSchema) {
   const { data, success, error: err } = editTransactionSchema.safeParse(unsafeData);
   if (!success) {

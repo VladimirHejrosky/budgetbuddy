@@ -1,18 +1,21 @@
-import { createClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import React from 'react'
+import StatisticsContent from "@/components/statistics/statistics-content";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import React from "react";
 
 const StatisticsPage = async () => {
-    const supabase = await createClient();
-  
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data?.user) {
-      redirect("/auth/login");
-    }
-  
-  return (
-    <div className="container mx-auto">StatisticsPage</div>
-  )
-}
+  const supabase = await createClient();
 
-export default StatisticsPage
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data?.user) {
+    redirect("/auth/login");
+  }
+
+  return (
+    <div className="container mx-auto">
+      <StatisticsContent />
+    </div>
+  );
+};
+
+export default StatisticsPage;
