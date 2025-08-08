@@ -5,6 +5,7 @@ import {
   deleteTransactionSchema,
   editTransactionSchema,
   EditTransactionSchema,
+  recurringTransactionSchema,
   TransactionSchema,
   transactionSchema,
 } from "../validations/transaction";
@@ -112,6 +113,76 @@ export async function deleteTransaction(unsafeData: { id: string }) {
 
   const { error: deleteError } = await supabase
     .from("transaction")
+    .delete()
+    .eq("id", data.id)
+    .eq("userId", user.id);
+
+  if (deleteError) throw new Error(deleteError.message);
+}
+
+export async function createRecurringTransaction(unsafeData: any) {
+  const { data:safeData, success, error: err } = recurringTransactionSchema.safeParse(unsafeData);
+  if (!success) {
+    console.error("Validation error", err.flatten());
+    console.error("Received data", unsafeData);
+    throw new Error("Invalid data");
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+  if (error || !user) throw new Error("Unauthorized");
+
+  const {countThisMonth, ...data} = safeData;
+  const { error: insertError } = await supabase
+    .from("recurringTransaction")
+    .insert([{ ...data, userId: user.id }]);
+  if (insertError) throw new Error(insertError.message);
+
+  if (countThisMonth) {
+    const { error: countError } = await supabase
+      .from("transaction")
+      .insert([{ ...data, userId: user.id, month: new Date().getMonth() + 1, year: new Date().getFullYear() }]);
+    if (countError) throw new Error(countError.message);
+  }
+}
+
+export async function getRecurringTransactions() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+  if (error || !user) throw new Error("Unauthorized");
+
+  const { data: recurringTransactions, error: fetchError } = await supabase
+    .from("recurringTransaction")
+    .select("*")
+    .eq("userId", user.id);
+
+  if (fetchError) throw new Error(fetchError.message);
+  return recurringTransactions;
+}
+
+export async function deleteRecurringTransaction(unsafeData: { id: string }) {
+  const { data, success, error: err } = deleteTransactionSchema.safeParse(unsafeData);
+  if (!success) {
+    console.error("Validation error", err.flatten());
+    console.error("Received data", unsafeData);
+    throw new Error("Invalid data");
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+  if (error || !user) throw new Error("Unauthorized");
+
+  const { error: deleteError } = await supabase
+    .from("recurringTransaction")
     .delete()
     .eq("id", data.id)
     .eq("userId", user.id);

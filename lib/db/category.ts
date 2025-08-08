@@ -43,7 +43,8 @@ export async function getCategories() {
   const { data: categories, error: fetchError } = await supabase
     .from("category")
     .select("*")
-    .eq("userId", user.id);
+    .eq("userId", user.id)
+    .order("type", { ascending: true })
 
   if (fetchError) throw new Error(fetchError.message);
   return categories;

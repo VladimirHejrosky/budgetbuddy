@@ -125,7 +125,7 @@ export default function StatisticsPage() {
               <TrendingDown className="h-4 w-4 text-red-600" />
             </CardHeader>
             <CardContent className="w-full flex items-center">
-              <div className="text-2xl font-bold text-green-600 flex-1">
+              <div className="text-2xl font-bold text-red-600 flex-1">
                 {isLoading ? (
                   <Skeleton className="h-[32px] w-1/2 rounded-full" />
                 ) : (

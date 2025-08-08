@@ -33,3 +33,19 @@ export const deleteTransactionSchema = transactionSchema.pick({
 });
 
 export type DeleteTransactionSchema = z.infer<typeof deleteTransactionSchema>;
+
+export const recurringTransactionSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(1, "Název je povinný"),
+  amount: z.coerce
+    .number()
+    .int("Zadejte celé číslo")
+    .positive("Částka musí být kladné celé číslo"),
+  categoryId: z.string().min(1, "Kategorie je povinná"),
+  type: z.enum(["income", "expense"]),
+  countThisMonth: z.boolean(),
+});
+
+export type RecurringTransactionSchema = z.infer<
+  typeof recurringTransactionSchema
+>;

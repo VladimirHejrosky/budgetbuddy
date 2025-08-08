@@ -1,12 +1,10 @@
 "use client";
 
-import { months } from "@/lib/data/months";
-import { createTransaction } from "@/lib/db/transaction";
+import { createRecurringTransaction } from "@/lib/db/transaction"; // ⚠️ Oprava importu - dříve bylo createTransaction
 import { useCategory } from "@/lib/hooks/useCategory";
-import { cn } from "@/lib/utils";
 import {
-  TransactionSchema,
-  transactionSchema,
+  RecurringTransactionSchema,
+  recurringTransactionSchema,
 } from "@/lib/validations/transaction";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -39,44 +37,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { Checkbox } from "../ui/checkbox";
 
-const currentMonth = new Date().getMonth() + 1;
-const currentYear = new Date().getFullYear();
-const years = Array.from(
-  { length: currentYear - 2025 + 1 },
-  (_, i) => 2025 + i
-);
+const month = new Date().getMonth() + 1;
+const year = new Date().getFullYear();
 
-interface Props {
-  monthOfCard: number;
-  yearOfCard: number;
-}
-
-export const CreateTransactionDialog = ({ monthOfCard, yearOfCard }: Props) => {
+export const CreateRecurringDialog = () => {
   const { data: categories } = useCategory();
   const [open, setOpen] = useState(false);
+
   const form = useForm({
-    resolver: zodResolver(transactionSchema),
+    resolver: zodResolver(recurringTransactionSchema),
     defaultValues: {
-      id: `temp-${crypto.randomUUID()}`,
       name: "",
       amount: 0,
       categoryId: "",
       type: undefined,
-      month: monthOfCard,
-      year: yearOfCard,
+      countThisMonth: true,
     },
   });
 
   const { reset, handleSubmit, register, control, watch, setValue } = form;
-
-  useEffect(() => {
-    form.reset((prev) => ({
-      ...prev,
-      month: monthOfCard,
-      year: yearOfCard,
-    }));
-  }, [monthOfCard, yearOfCard, form]);
 
   const categoryId = watch("categoryId");
 
@@ -89,60 +70,33 @@ export const CreateTransactionDialog = ({ monthOfCard, yearOfCard }: Props) => {
 
   const queryClient = useQueryClient();
   const mutation = useMutation({
-    mutationFn: async (data: TransactionSchema) =>
-      await createTransaction(data),
-
-    onMutate: async (newTransaction) => {
-      const queryKey = [
-        "transaction",
-        newTransaction.month,
-        newTransaction.year,
-      ] as const;
-
-      await queryClient.cancelQueries({ queryKey });
-
-      const previousTransactions =
-        queryClient.getQueryData<TransactionSchema[]>(queryKey);
-
-      queryClient.setQueryData<TransactionSchema[]>(queryKey, (old = []) => [
-        ...old,
-        newTransaction,
-      ]);
-
-      return { previousTransactions, queryKey };
-    },
-
-    onError: (err, newTransaction, context) => {
-      if (context?.previousTransactions) {
-        queryClient.setQueryData(
-          context.queryKey,
-          context.previousTransactions
-        );
-      }
-      toast.error("Chyba při vytváření transakce");
-    },
-
-    onSettled: (_, __, ___, context) => {
-      if (context?.queryKey) {
-        queryClient.invalidateQueries({ queryKey: context.queryKey });
-      }
+    mutationFn: async (data: RecurringTransactionSchema) =>
+      await createRecurringTransaction(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["recurring"] });
+      queryClient.invalidateQueries({ queryKey: ["transaction", month, year] });
+      queryClient.invalidateQueries({ queryKey: ["transactions", year] });
       resetDefault();
+    },
+    onError: () => {
+      toast.error("Chyba při vytváření transakce");
     },
   });
 
   const resetDefault = () => {
     reset({
-      id: `temp-${crypto.randomUUID()}`,
       name: "",
       amount: 0,
       categoryId: "",
-      month: monthOfCard,
-      year: yearOfCard,
+      type: undefined,
+      countThisMonth: true,
     });
   };
-  const onSubmit = async (data: TransactionSchema) => {
-    setOpen(false);
+
+  const onSubmit = async (data: RecurringTransactionSchema) => {
     await mutation.mutateAsync(data);
+    setOpen(false);
+    resetDefault();
   };
 
   return (
@@ -160,14 +114,14 @@ export const CreateTransactionDialog = ({ monthOfCard, yearOfCard }: Props) => {
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto will-change-auto">
         <DialogHeader>
-          <DialogTitle>Přidat Transakci</DialogTitle>
-          <DialogDescription />
+          <DialogTitle>Přidat opakovanou platbu</DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">Opakované platby jsou vytvořeny vždy první den v měsíci</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <input type="hidden" {...register("id")} />
             <input type="hidden" {...register("type")} />
 
+            {/* Kategorie */}
             <FormField
               control={control}
               name="categoryId"
@@ -206,6 +160,7 @@ export const CreateTransactionDialog = ({ monthOfCard, yearOfCard }: Props) => {
               )}
             />
 
+            {/* Název */}
             <FormField
               control={control}
               name="name"
@@ -220,6 +175,7 @@ export const CreateTransactionDialog = ({ monthOfCard, yearOfCard }: Props) => {
               )}
             />
 
+            {/* Částka */}
             <FormField
               control={control}
               name="amount"
@@ -245,75 +201,24 @@ export const CreateTransactionDialog = ({ monthOfCard, yearOfCard }: Props) => {
               )}
             />
 
-            <div className="flex flex-row gap-4 items-center w-full">
-              <FormField
-                control={control}
-                name="month"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Měsíc</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      defaultValue={field.value.toString()}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Měsíc" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {months.map((month) => (
-                          <SelectItem
-                            key={month.value}
-                            value={month.value.toString()}
-                            className={cn(
-                              month.value === currentMonth && "font-semibold"
-                            )}
-                          >
-                            {month.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            {/* Nový checkbox */}
+            <FormField
+              control={control}
+              name="countThisMonth"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-3 w-full justify-center">
+                  <FormLabel>Započítat do tohoto měsíce</FormLabel>
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={(checked) => field.onChange(!!checked)}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={control}
-                name="year"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Rok</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value.toString()}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Rok" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {years.map((year) => (
-                          <SelectItem
-                            key={year}
-                            value={year.toString()}
-                            className={cn(
-                              year === currentYear && "font-semibold"
-                            )}
-                          >
-                            {year}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            {/* Tlačítka */}
             <div className="flex justify-between w-full mt-8">
               <Button
                 variant="outline"
@@ -322,7 +227,7 @@ export const CreateTransactionDialog = ({ monthOfCard, yearOfCard }: Props) => {
               >
                 Zpět
               </Button>
-              <Button type="submit">Přidat</Button>
+              <Button disabled={form.formState.isSubmitting} type="submit">Přidat</Button>
             </div>
           </form>
         </Form>

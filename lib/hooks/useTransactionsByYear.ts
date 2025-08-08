@@ -5,7 +5,7 @@ export function useTransactionsByYear(year: number) {
   const data = useQuery({
     queryKey: ["transactions", year],
     queryFn: async () => await getTransactionsByYear(year),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 15,
   });
 
   return data;
