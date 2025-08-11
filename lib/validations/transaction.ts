@@ -1,4 +1,3 @@
-// validations/transaction.ts
 import { z } from "zod";
 
 export const transactionSchema = z.object({
@@ -43,9 +42,25 @@ export const recurringTransactionSchema = z.object({
     .positive("Částka musí být kladné celé číslo"),
   categoryId: z.string().min(1, "Kategorie je povinná"),
   type: z.enum(["income", "expense"]),
-  countThisMonth: z.boolean(),
-});
+  countThisMonth: z.boolean()});
 
 export type RecurringTransactionSchema = z.infer<
   typeof recurringTransactionSchema
+>;
+
+export const recurringTransactionToggleSchema = z.object({
+  id: z.string(),
+  active: z.boolean(),
+});
+
+export type RecurringTransactionToggleSchema = z.infer<
+  typeof recurringTransactionToggleSchema
+>;
+
+export const deleteRecurringTransactionSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
+export type DeleteRecurringTransactionSchema = z.infer<
+  typeof deleteRecurringTransactionSchema
 >;
