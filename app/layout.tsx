@@ -6,6 +6,7 @@ import NavigationBar from "@/components/navigation/navigation-bar";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "sonner";
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata: Metadata = {
   title: "BudgetBuddy",
@@ -46,6 +47,7 @@ export default function RootLayout({
             <Toaster />
           </QueryProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );

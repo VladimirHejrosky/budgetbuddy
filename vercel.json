@@ -1,6 +1,8 @@
 {
-  "crons": [{
-    "path": "/api/cron/recurringUpdate",
-    "schedule": "0 12 * * *"
-  }]
+  "crons": [
+    {
+      "path": "/api/cron/recurringUpdate",
+      "schedule": "0 1 1 * *"
+    }
+  ]
 }
