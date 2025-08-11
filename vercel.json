@@ -1,0 +1,6 @@
+{
+  "crons": [{
+    "path": "/api/cron/recurringUpdate",
+    "schedule": "0 12 * * *"
+  }]
+}
