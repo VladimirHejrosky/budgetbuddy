@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getRecurringTransactions, getTransactions } from "../db/transaction";
+import { getRecurringTransactions } from "../db/transaction";
 
 export function useRecurring() {
   const data = useQuery({

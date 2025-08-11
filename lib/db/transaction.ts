@@ -5,6 +5,7 @@ import {
   deleteTransactionSchema,
   editTransactionSchema,
   EditTransactionSchema,
+  RecurringTransactionSchema,
   recurringTransactionSchema,
   recurringTransactionToggleSchema,
   TransactionSchema,
@@ -123,7 +124,7 @@ export async function deleteTransaction(unsafeData: { id: string }) {
 
 // RECURRING TRANSACTIONS
 
-export async function createRecurringTransaction(unsafeData: any) {
+export async function createRecurringTransaction(unsafeData:RecurringTransactionSchema) {
   const { data:safeData, success, error: err } = recurringTransactionSchema.safeParse(unsafeData);
   if (!success) {
     console.error("Validation error", err.flatten());

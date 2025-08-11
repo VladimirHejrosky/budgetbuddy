@@ -2,6 +2,7 @@
 
 import { toggleRecurringTransaction } from "@/lib/db/transaction";
 import { formatNumber } from "@/lib/functions/formatNumber";
+import { useCategory } from "@/lib/hooks/useCategory";
 import { cn } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
@@ -9,8 +10,6 @@ import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { Switch } from "../ui/switch";
-import { useCategory } from "@/lib/hooks/useCategory";
-import { Span } from "next/dist/trace";
 interface Props {
   data: {
     id: string;

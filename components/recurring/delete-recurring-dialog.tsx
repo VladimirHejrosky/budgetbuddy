@@ -1,9 +1,9 @@
 "use client";
 
-import { deleteRecurringTransaction, deleteTransaction } from "@/lib/db/transaction";
+import { deleteRecurringTransaction } from "@/lib/db/transaction";
 import {
-    DeleteTransactionSchema,
-    deleteTransactionSchema,
+  DeleteTransactionSchema,
+  deleteTransactionSchema,
 } from "@/lib/validations/transaction";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -12,11 +12,11 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
 } from "../ui/dialog";
 import { Form } from "../ui/form";
 
