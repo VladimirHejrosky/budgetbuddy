@@ -6,10 +6,14 @@ export const transactionSchema = z.object({
     .string()
     .min(1, "Název je povinný")
     .max(50, "Název nesmí být delší než 50 znaků"),
-  amount: z.coerce
-    .number()
-    .int("Zadejte celé číslo")
-    .positive("Částka musí být kladné celé číslo"),
+  amount: z
+    .string()
+    .min(1, 'cannot be empty')
+    .default('')
+    .refine(     
+      (val) => !isNaN(Number(val)),
+      { message: 'Invalid price' }
+    ),
   categoryId: z.string(),
   type: z.enum(["income", "expense"]),
   month: z.number().int().min(1).max(12),
@@ -36,10 +40,14 @@ export type DeleteTransactionSchema = z.infer<typeof deleteTransactionSchema>;
 export const recurringTransactionSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, "Název je povinný"),
-  amount: z.coerce
-    .number()
-    .int("Zadejte celé číslo")
-    .positive("Částka musí být kladné celé číslo"),
+  amount: z
+    .string()
+    .min(1, 'cannot be empty')
+    .default('')
+    .refine(     
+      (val) => !isNaN(Number(val)),
+      { message: 'Invalid price' }
+    ),
   categoryId: z.string().min(1, "Kategorie je povinná"),
   type: z.enum(["income", "expense"]),
   countThisMonth: z.boolean()});

@@ -50,7 +50,7 @@ export const CreateRecurringDialog = () => {
     resolver: zodResolver(recurringTransactionSchema),
     defaultValues: {
       name: "",
-      amount: 0,
+      amount: "",
       categoryId: "",
       type: undefined,
       countThisMonth: true,
@@ -86,7 +86,7 @@ export const CreateRecurringDialog = () => {
   const resetDefault = () => {
     reset({
       name: "",
-      amount: 0,
+      amount: "",
       categoryId: "",
       type: undefined,
       countThisMonth: true,

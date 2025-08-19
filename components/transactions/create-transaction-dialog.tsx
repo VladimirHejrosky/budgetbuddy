@@ -60,7 +60,7 @@ export const CreateTransactionDialog = ({ monthOfCard, yearOfCard }: Props) => {
     defaultValues: {
       id: `temp-${crypto.randomUUID()}`,
       name: "",
-      amount: 0,
+      amount: "",
       categoryId: "",
       type: undefined,
       month: monthOfCard,
@@ -144,7 +144,7 @@ export const CreateTransactionDialog = ({ monthOfCard, yearOfCard }: Props) => {
     reset({
       id: `temp-${crypto.randomUUID()}`,
       name: "",
-      amount: 0,
+      amount: "",
       categoryId: "",
       month: monthOfCard,
       year: yearOfCard,
