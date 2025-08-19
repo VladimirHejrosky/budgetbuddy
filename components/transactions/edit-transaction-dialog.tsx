@@ -9,34 +9,34 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
 } from "../ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "../ui/select";
 
 interface Props {
   transactionValues: {
     id: string;
     name: string;
-    amount: number;
+    amount: string;
     categoryId: string;
     type: "expense" | "income";
     month: number;
@@ -128,7 +128,7 @@ const EditTransactionDialog = ({ transactionValues, onClose }: Props) => {
     },
   });
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: EditTransactionSchema) => {
     const current = form.getValues();
     const defaults = form.formState.defaultValues;
 
@@ -144,7 +144,6 @@ const EditTransactionDialog = ({ transactionValues, onClose }: Props) => {
     onClose();
     await mutation.mutateAsync({
       ...data,
-      amount: Number(data.amount),
     });
   };
 
@@ -227,11 +226,6 @@ const EditTransactionDialog = ({ transactionValues, onClose }: Props) => {
                     <div className="relative">
                       <Input
                         placeholder="0"
-                        onKeyDown={(e) => {
-                          if (["e", "E", "+", "-"].includes(e.key)) {
-                            e.preventDefault();
-                          }
-                        }}
                         type="number"
                         {...field}
                         inputMode="decimal"
