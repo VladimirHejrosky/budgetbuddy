@@ -114,11 +114,10 @@ const CreateCategoryDialog = () => {
     >
       <DialogTrigger asChild>
         <Button
-          className={`fixed right-4 sm:relative sm:right-0 z-0 transition-opacity duration-300  ${
+          className={`${scrolled ? "fixed right-4" : "relative right-0"} sm:relative sm:right-0 z-0 transition-opacity duration-300  ${
             scrolled ? "opacity-80" : "opacity-100"
           }`}
         >
-          {" "}
           <Plus />
         </Button>
       </DialogTrigger>

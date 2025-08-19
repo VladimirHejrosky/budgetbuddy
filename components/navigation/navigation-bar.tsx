@@ -13,6 +13,7 @@ import {
   DrawerTitle,
   DrawerFooter,
   DrawerClose,
+  DrawerDescription,
 } from "../ui/drawer";
 import { useState } from "react";
 
@@ -81,9 +82,10 @@ const NavigationBar = () => {
               <Menu className="w-6 h-6" />
             </div>
           </DrawerTrigger>
-          <DrawerContent>
+          <DrawerContent className="z-50">
             <DrawerHeader>
               <DrawerTitle />
+              <DrawerDescription />
               <DrawerClose className="absolute top-5 right-6">
                 <X className="w-6 h-6"/>
               </DrawerClose>
