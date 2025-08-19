@@ -1,12 +1,14 @@
 "use client";
 
+import { colorOptions } from "@/lib/data/colors";
 import { createCategory } from "@/lib/db/category";
 import { CategoryFormData, categorySchema } from "@/lib/validations/category";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -33,8 +35,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { colorOptions } from "@/lib/data/colors";
-import { toast } from "sonner";
 
 const CreateCategoryDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -51,6 +51,16 @@ const CreateCategoryDialog = () => {
   });
 
   const { reset } = form;
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 0);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const resetDefault = () => {
     reset({
@@ -59,7 +69,7 @@ const CreateCategoryDialog = () => {
       type: "expense",
       color: colorOptions[0],
     });
-  }
+  };
 
   const mutation = useMutation({
     mutationFn: async (data: CategoryFormData) => await createCategory(data),
@@ -99,12 +109,16 @@ const CreateCategoryDialog = () => {
       open={isOpen}
       onOpenChange={(open) => {
         setIsOpen(open);
-        if (!open)
-          resetDefault()
+        if (!open) resetDefault();
       }}
     >
       <DialogTrigger asChild>
-        <Button>
+        <Button
+          className={`fixed right-4 sm:relative sm:right-0 z-0 transition-opacity duration-300  ${
+            scrolled ? "opacity-80" : "opacity-100"
+          }`}
+        >
+          {" "}
           <Plus />
         </Button>
       </DialogTrigger>
@@ -202,10 +216,7 @@ const CreateCategoryDialog = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => (
-                  setIsOpen(false),
-                  resetDefault()
-                )}
+                onClick={() => (setIsOpen(false), resetDefault())}
               >
                 Zrušit
               </Button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { createRecurringTransaction } from "@/lib/db/transaction"; // ⚠️ Oprava importu - dříve bylo createTransaction
+import { createRecurringTransaction } from "@/lib/db/transaction";
 import { useCategory } from "@/lib/hooks/useCategory";
 import {
   RecurringTransactionSchema,
@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
+import { Checkbox } from "../ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -37,7 +38,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Checkbox } from "../ui/checkbox";
 
 const month = new Date().getMonth() + 1;
 const year = new Date().getFullYear();
@@ -58,6 +58,16 @@ export const CreateRecurringDialog = () => {
   });
 
   const { reset, handleSubmit, register, control, watch, setValue } = form;
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 0);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const categoryId = watch("categoryId");
 
@@ -108,14 +118,21 @@ export const CreateRecurringDialog = () => {
       }}
     >
       <DialogTrigger asChild>
-        <Button>
+        <Button
+          className={`fixed right-4 sm:relative sm:right-0 z-0 transition-opacity duration-300  ${
+            scrolled ? "opacity-80" : "opacity-100"
+          }`}
+        >
+          {" "}
           <Plus />
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto will-change-auto">
         <DialogHeader>
           <DialogTitle>Přidat opakovanou platbu</DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground">Opakované platby jsou vytvořeny vždy první den v měsíci</DialogDescription>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Opakované platby jsou vytvořeny vždy první den v měsíci
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -227,7 +244,9 @@ export const CreateRecurringDialog = () => {
               >
                 Zpět
               </Button>
-              <Button disabled={form.formState.isSubmitting} type="submit">Přidat</Button>
+              <Button disabled={form.formState.isSubmitting} type="submit">
+                Přidat
+              </Button>
             </div>
           </form>
         </Form>
