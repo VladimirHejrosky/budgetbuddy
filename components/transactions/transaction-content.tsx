@@ -50,7 +50,10 @@ const TransactionContent = () => {
       </Card>
       {editTransaction && (
         <EditTransactionDialog
-          transactionValues={editTransaction}
+          transactionValues={{
+            ...editTransaction,
+            amount: Number(editTransaction.amount),
+          }}
           onClose={() => setEditTransaction(null)}
         />
       )}

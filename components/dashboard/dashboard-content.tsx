@@ -11,6 +11,7 @@ import { Skeleton } from "../ui/skeleton";
 import { Badge } from "../ui/badge";
 import { useCategory } from "@/lib/hooks/useCategory";
 import { cn } from "@/lib/utils";
+import NumberSkeleton from "../skeletons/number-skeleton";
 
 const DashboardContent = () => {
   const [month, setMonth] = useState(new Date().getMonth() + 1);
@@ -73,11 +74,7 @@ const DashboardContent = () => {
           </CardHeader>
           <CardContent className="w-full flex items-center">
             <div className="text-2xl font-bold text-green-600 flex-1">
-              {isLoading ? (
-                <Skeleton className="h-[32px] w-1/2 rounded-full" />
-              ) : (
-                formatNumber(totalIncome)
-              )}
+              <NumberSkeleton amount={totalIncome} isLoading={isLoading}/>
             </div>
             <span className="text-sm text-muted-foreground">Kč</span>
           </CardContent>
@@ -92,11 +89,7 @@ const DashboardContent = () => {
           </CardHeader>
           <CardContent className="w-full flex items-center">
             <div className="text-2xl font-bold text-red-600 flex-1">
-              {isLoading ? (
-                <Skeleton className="h-[32px] w-1/2 rounded-full" />
-              ) : (
-                formatNumber(totalExpenses)
-              )}
+              <NumberSkeleton amount={totalExpenses} isLoading={isLoading}/>
             </div>
             <span className="text-sm text-muted-foreground">Kč</span>
           </CardContent>
@@ -115,11 +108,7 @@ const DashboardContent = () => {
                 balance >= 0 ? "text-green-600" : "text-red-600"
               }`}
             >
-              {isLoading ? (
-                <Skeleton className="h-[32px] w-1/2 rounded-full" />
-              ) : (
-                formatNumber(balance)
-              )}
+              <NumberSkeleton amount={balance} isLoading={isLoading}/>
             </div>
             <span className="text-sm text-muted-foreground">Kč</span>
           </CardContent>

@@ -128,13 +128,13 @@ const EditTransactionDialog = ({ transactionValues, onClose }: Props) => {
     },
   });
 
-  const onSubmit = async (data: EditTransactionSchema) => {
+  const onSubmit = async (data: any) => {
     const current = form.getValues();
     const defaults = form.formState.defaultValues;
 
     const hasChanged =
       current.name !== defaults?.name ||
-      current.amount !== defaults?.amount ||
+      Number(current.amount) !== Number(defaults?.amount) ||
       current.categoryId !== defaults?.categoryId;
 
     if (!hasChanged) {
@@ -142,7 +142,10 @@ const EditTransactionDialog = ({ transactionValues, onClose }: Props) => {
       return;
     }
     onClose();
-    await mutation.mutateAsync(data);
+    await mutation.mutateAsync({
+      ...data,
+      amount: Number(data.amount),
+    });
   };
 
   return (
