@@ -90,7 +90,7 @@ export default function StatisticsPage() {
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold">Roční statistiky</h1>
+          <h1 className="text-2xl font-bold">Roční statistiky</h1>
         </div>
         <Card className="w-full p-2 pb-0 mb-4">
           <YearSelector year={year} setYear={setYear} />

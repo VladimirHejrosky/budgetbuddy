@@ -16,6 +16,7 @@ import {
   DrawerDescription,
 } from "../ui/drawer";
 import { useState } from "react";
+import { AuroraText } from "../magicui/aurora-text";
 
 const NavigationBar = () => {
   const [open, setOpen] = useState(false);
@@ -52,9 +53,9 @@ const NavigationBar = () => {
     );
 
   return (
-    <nav className="w-full flex justify-between items-center border-b border-b-foreground/10 py-3 px-4 sticky top-0 bg-background z-10">
+    <nav className="w-full flex justify-between items-center border-b border-b-foreground/10 py-3 px-4 bg-background z-10">
       <Link className="font-bold text-2xl" href={"/"}>
-        BudgetBuddy
+      <AuroraText>BudgetBuddy</AuroraText>
       </Link>
       <div className="hidden gap-4 items-center md:flex">
         {links.map(({ href, label, active }) => (
@@ -82,7 +83,7 @@ const NavigationBar = () => {
               <Menu className="w-6 h-6" />
             </div>
           </DrawerTrigger>
-          <DrawerContent className="z-50">
+          <DrawerContent>
             <DrawerHeader>
               <DrawerTitle />
               <DrawerDescription />

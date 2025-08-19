@@ -15,7 +15,7 @@ const CategoriesPage = async () => {
     <div className="container mx-auto">
       <div className="flex w-full justify-between items-center mb-4">
         <div>
-          <h1 className="text-3xl font-semibold">Kategorie</h1>
+          <h1 className="text-2xl font-semibold">Kategorie</h1>
         </div>
         <CreateCategoryDialog />
       </div>

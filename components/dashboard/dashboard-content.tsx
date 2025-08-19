@@ -51,7 +51,7 @@ const DashboardContent = () => {
     <>
       <div className="flex w-full justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-semibold">Přehled</h1>
+          <h1 className="text-2xl font-semibold">Přehled</h1>
         </div>
         <CreateTransactionDialog monthOfCard={month} yearOfCard={year} />
       </div>

@@ -23,7 +23,7 @@ const TransactionContent = () => {
     <>
       <div className="flex w-full justify-between items-center mb-4">
         <div>
-          <h1 className="text-3xl font-semibold">Transakce</h1>
+          <h1 className="text-2xl font-semibold">Transakce</h1>
         </div>
         <CreateTransactionDialog monthOfCard={month} yearOfCard={year} />
       </div>
