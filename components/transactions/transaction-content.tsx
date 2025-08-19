@@ -52,7 +52,6 @@ const TransactionContent = () => {
         <EditTransactionDialog
           transactionValues={{
             ...editTransaction,
-            amount: Number(editTransaction.amount),
           }}
           onClose={() => setEditTransaction(null)}
         />
